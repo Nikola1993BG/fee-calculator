@@ -13,7 +13,7 @@ class ExchangeRatesProvider implements Interfaces\ExchangeRatesProviderInterface
      * @param string $currency The currency code.
      * @return float The exchange rate for the specified currency.
      */
-    public static function getRate($currency): float
+    public static function getRate(string $currency): float
     {
         if (!isset(self::$rates)) {
             self::$rates = self::getRates();

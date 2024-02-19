@@ -5,10 +5,13 @@ namespace Tests;
 use App\Calculator\Container;
 use App\Calculator\CsvParser;
 use PHPUnit\Framework\TestCase;
-use App\Calculator\CalculatorFactory;
 use App\Calculator\TransactionStorage;
+use App\Calculator\TransactionFeeCalculator;
+use App\Calculator\TransactionFeePrivateCalculator;
+use App\Calculator\TransactionFeeBusinessCalculator;
 use App\Calculator\Interfaces\DataProcessorInterface;
 use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
+use App\Calculator\Interfaces\TransactionFeeCalculatorInterface;
 
 class ScriptTest extends TestCase
 {
@@ -47,15 +50,23 @@ class ScriptTest extends TestCase
                 }
             });
 
+            Container::set(TransactionFeePrivateCalculator::class, fn() => new TransactionFeePrivateCalculator(
+                Container::get(ExchangeRatesProviderInterface::class)
+            ));
+            Container::set(TransactionFeeBusinessCalculator::class, fn() => new TransactionFeeBusinessCalculator(
+                Container::get(ExchangeRatesProviderInterface::class)
+            ));
+            Container::set(TransactionFeeCalculatorInterface::class, fn() => new TransactionFeeCalculator(
+                Container::get(TransactionFeePrivateCalculator::class),
+                Container::get(TransactionFeeBusinessCalculator::class)
+            ));
+
         // Create the necessary objects
         $transactionStorage = new TransactionStorage(Container::get(DataProcessorInterface::class));
-
+        $transactionFeeCalculator = Container::get(TransactionFeeCalculatorInterface::class);
         // Calculate the fees
         $result = [];
         foreach ($transactionStorage->getAll() as $trns) {
-            $t = reset($trns);
-            $clientType = $t->client->type;
-            $transactionFeeCalculator = CalculatorFactory::createCalculator($clientType);
             $result = array_merge($transactionFeeCalculator->calcFee($trns), $result);
         }
 

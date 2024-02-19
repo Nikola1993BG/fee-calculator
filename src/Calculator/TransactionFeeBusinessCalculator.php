@@ -11,7 +11,7 @@ class TransactionFeeBusinessCalculator implements TransactionFeeCalculatorInterf
     public function __construct(private ExchangeRatesProviderInterface $exchangeRatesProvider)
     {
     }
-    public function calcFee($transactions): array
+    public function calcFee(array $transactions): array
     {
         foreach ($transactions as $transaction) {
             $commission_fee = $this->commission_fees[$transaction->type];

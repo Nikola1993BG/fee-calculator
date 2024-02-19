@@ -12,7 +12,7 @@ class TransactionFeePrivateCalculator implements TransactionFeeCalculatorInterfa
     {
     }
 
-    public function calcFee($transactions): array
+    public function calcFee(array $transactions): array
     {
 
         foreach ($transactions as $transaction) {
