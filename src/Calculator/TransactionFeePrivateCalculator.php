@@ -2,37 +2,27 @@
 
 namespace App\Calculator;
 
-use App\Calculator\Interfaces\TransactionFeeCalculatorInterface;
 use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
+use App\Calculator\Interfaces\TransactionFeeCalculatorInterface;
 
-class TransactionFeeCalculator implements TransactionFeeCalculatorInterface
+class TransactionFeePrivateCalculator implements TransactionFeeCalculatorInterface
 {
-    private array $commission_fees_private = ['deposit' => 0.0003,'withdraw' => 0.003];
-    private array $commission_fees_business = ['deposit' => 0.0003,'withdraw' => 0.005];
-    public function __construct(private ExchangeRatesProviderInterface $rates)
+    private array $commission_fees = ['deposit' => 0.0003,'withdraw' => 0.003];
+    public function __construct(private ExchangeRatesProviderInterface $exchangeRatesProvider)
     {
     }
 
-    /**
-     * Calculates the transaction fee for each transaction in the given array.
-     *
-     * @param array $transactions The array of transactions.
-     * @return array The updated array of transactions with calculated fees.
-     */
     public function calcFee($transactions): array
     {
+
         foreach ($transactions as $transaction) {
-            if ($transaction->client->type == 'private') {
-                $commission_fee = $this->commission_fees_private[$transaction->type];
-            } else {
-                $commission_fee = $this->commission_fees_business[$transaction->type];
-            }
+            $commission_fee = $this->commission_fees[$transaction->type];
 
             $currency = $transaction->currency;
-            $rate = $this->rates::getRate($currency);
+            $rate = $this->exchangeRatesProvider::getRate($currency);
             $euro_amount = $transaction->amount / $rate;
 
-            if ($transaction->type == 'withdraw' && $transaction->client->type == 'private') {
+            if ($transaction->type == 'withdraw') {
                 if ($transaction->client->last_transaction != null) {
                     $date = new \DateTime($transaction->client->last_transaction);
                     $date2 = new \DateTime($transaction->date);

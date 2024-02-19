@@ -6,7 +6,7 @@ use App\Calculator\Interfaces\DataProcessorInterface;
 
 class TransactionStorage
 {
-    public function __construct(private DataProcessorInterface $processor)
+    public function __construct(private DataProcessorInterface $dataProcessor)
     {
     }
 
@@ -17,7 +17,7 @@ class TransactionStorage
      */
     public function getAll(): array
     {
-        $transactions = $this->processor->getAll();
+        $transactions = $this->dataProcessor->getAll();
         $trn_id = 0;
         $data = [];
         foreach ($transactions as $transaction) {

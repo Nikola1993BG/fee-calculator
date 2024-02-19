@@ -2,10 +2,14 @@
 
 namespace Tests;
 
-use PHPUnit\Framework\TestCase;
-use App\Calculator\TransactionStorage;
+use App\Calculator\Container;
 use App\Calculator\CsvParser;
+use PHPUnit\Framework\TestCase;
+use App\Calculator\CalculatorFactory;
+use App\Calculator\TransactionStorage;
+use App\Calculator\ExchangeRatesProvider;
 use App\Calculator\TransactionFeeCalculator;
+use App\Calculator\Interfaces\DataProcessorInterface;
 use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
 
 class ScriptTest extends TestCase
@@ -30,28 +34,35 @@ class ScriptTest extends TestCase
             '8612'
         ];
 
-        // Create the necessary objects
-        $transactionStorage = new TransactionStorage(new CsvParser($csvFile));
-
-        $rates = new class implements ExchangeRatesProviderInterface
-        {
-            public static function getRate($currency): float
+        $container = new Container();
+        $container->set(DataProcessorInterface::class, fn() => new CsvParser($csvFile));
+        $container->set(ExchangeRatesProviderInterface::class, fn() =>
+            new class implements ExchangeRatesProviderInterface
             {
-                $rates = [
-                    'EUR' => 1,
-                    'USD' => 1.1497,
-                    'JPY' => 129.53
-                ];
-                return $rates[$currency];
-            }
-        };
+                public static function getRate($currency): float
+                {
+                    $rates = [
+                        'EUR' => 1,
+                        'USD' => 1.1497,
+                        'JPY' => 129.53
+                    ];
+                    return $rates[$currency];
+                }
+            });
 
-        $transactionFeeCalculator = new TransactionFeeCalculator($rates);
+        $calcFactory = new CalculatorFactory($container);
+
+        // Create the necessary objects
+        $transactionStorage = new TransactionStorage($container->get(DataProcessorInterface::class));
 
         // Calculate the fees
         $result = [];
-        foreach ($transactionStorage->getAll() as $transaction) {
-            $result = array_merge($transactionFeeCalculator->calcFee($transaction), $result);
+        foreach ($transactionStorage->getAll() as $trns) {
+            $t = reset($trns);
+            $clientType = $t->client->type;
+            $transactionFeeCalculator = $calcFactory->createCalculator($clientType);
+
+            $result = array_merge($transactionFeeCalculator->calcFee($trns), $result);
         }
 
         // Sort the result by trn_id
