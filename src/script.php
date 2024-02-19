@@ -10,14 +10,13 @@ use App\Calculator\ExchangeRatesProvider;
 use App\Calculator\Interfaces\DataProcessorInterface;
 use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
 
-$container = new Container();
-$container->set(DataProcessorInterface::class, fn() => new CsvParser($argv[1]));
-$container->set(ExchangeRatesProviderInterface::class, fn() => new ExchangeRatesProvider());
+Container::set(DataProcessorInterface::class, fn() => new CsvParser($argv[1]));
+Container::set(ExchangeRatesProviderInterface::class, fn() => new ExchangeRatesProvider());
 
-$calcFactory = new CalculatorFactory($container);
+$calcFactory = new CalculatorFactory();
 
 $result = [];
-foreach ((new TransactionStorage($container->get(DataProcessorInterface::class)))->getAll() as $trns) {
+foreach ((new TransactionStorage(Container::get(DataProcessorInterface::class)))->getAll() as $trns) {
     $t = reset($trns);
     $clientType = $t->client->type;
     $calc = $calcFactory->createCalculator($clientType);

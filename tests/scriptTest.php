@@ -7,8 +7,6 @@ use App\Calculator\CsvParser;
 use PHPUnit\Framework\TestCase;
 use App\Calculator\CalculatorFactory;
 use App\Calculator\TransactionStorage;
-use App\Calculator\ExchangeRatesProvider;
-use App\Calculator\TransactionFeeCalculator;
 use App\Calculator\Interfaces\DataProcessorInterface;
 use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
 
@@ -34,9 +32,8 @@ class ScriptTest extends TestCase
             '8612'
         ];
 
-        $container = new Container();
-        $container->set(DataProcessorInterface::class, fn() => new CsvParser($csvFile));
-        $container->set(ExchangeRatesProviderInterface::class, fn() =>
+        Container::set(DataProcessorInterface::class, fn() => new CsvParser($csvFile));
+        Container::set(ExchangeRatesProviderInterface::class, fn() =>
             new class implements ExchangeRatesProviderInterface
             {
                 public static function getRate($currency): float
@@ -50,10 +47,10 @@ class ScriptTest extends TestCase
                 }
             });
 
-        $calcFactory = new CalculatorFactory($container);
+        $calcFactory = new CalculatorFactory();
 
         // Create the necessary objects
-        $transactionStorage = new TransactionStorage($container->get(DataProcessorInterface::class));
+        $transactionStorage = new TransactionStorage(Container::get(DataProcessorInterface::class));
 
         // Calculate the fees
         $result = [];

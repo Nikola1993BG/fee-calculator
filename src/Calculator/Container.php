@@ -2,29 +2,45 @@
 
 namespace App\Calculator;
 
-use App\Calculator\Interfaces\DataProcessorInterface;
-use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
-use Psr\Container\ContainerInterface;
-
-class Container implements ContainerInterface
+class Container
 {
-    private array $services = [];
-    public function get(string $id)
-    {
-        if ($this->has($id)) {
-            $service = $this->services[$id];
+    private static array $services = [];
 
-            return $service($this);
+    /**
+     * Retrieves a service from the container by its ID.
+     *
+     * @param string $id The ID of the service to retrieve.
+     * @return mixed|null The retrieved service or null if the service does not exist.
+     */
+    public static function get(string $id)
+    {
+        if (self::has($id)) {
+            $service = self::$services[$id];
+
+            return $service();
         }
     }
 
-    public function set(string $id, callable $callback): void
+    /**
+     * Sets a service in the container.
+     *
+     * @param string $id The identifier of the service.
+     * @param callable $callback The callback function that creates the service.
+     * @return void
+     */
+    public static function set(string $id, callable $callback): void
     {
-        $this->services[$id] = $callback;
+        self::$services[$id] = $callback;
     }
 
-    public function has(string $id): bool
+    /**
+     * Checks if a service with the given ID exists in the container.
+     *
+     * @param string $id The ID of the service.
+     * @return bool Returns true if the service exists, false otherwise.
+     */
+    public static function has(string $id): bool
     {
-        return isset($this->services[$id]);
+        return isset(self::$services[$id]);
     }
 }
