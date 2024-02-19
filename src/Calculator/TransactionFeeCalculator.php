@@ -2,7 +2,6 @@
 
 namespace App\Calculator;
 
-use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
 use App\Calculator\Interfaces\TransactionFeeCalculatorInterface;
 
 class TransactionFeeCalculator implements TransactionFeeCalculatorInterface
@@ -13,6 +12,13 @@ class TransactionFeeCalculator implements TransactionFeeCalculatorInterface
     ) {
     }
 
+    /**
+     * Calculates the fee for an array of transactions.
+     *
+     * @param array $transactions An array of transactions.
+     * @return array The calculated fees for each transaction.
+     * @throws \Exception If the client type is invalid.
+     */
     public function calcFee(array $transactions): array
     {
         $transaction = reset($transactions);

@@ -12,6 +12,12 @@ class TransactionFeePrivateCalculator implements TransactionFeeCalculatorInterfa
     {
     }
 
+    /**
+     * Calculates the transaction fees for an array of transactions.
+     *
+     * @param array $transactions An array of transactions.
+     * @return array The updated array of transactions with calculated commissions.
+     */
     public function calcFee(array $transactions): array
     {
 

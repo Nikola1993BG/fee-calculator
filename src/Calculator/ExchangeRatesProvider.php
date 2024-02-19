@@ -2,7 +2,9 @@
 
 namespace App\Calculator;
 
-class ExchangeRatesProvider implements Interfaces\ExchangeRatesProviderInterface
+use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
+
+class ExchangeRatesProvider implements ExchangeRatesProviderInterface
 {
     private const URL = 'https://developers.paysera.com/tasks/api/currency-exchange-rates';
     private static ?array $rates = null;
