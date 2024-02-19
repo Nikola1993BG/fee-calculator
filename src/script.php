@@ -13,14 +13,12 @@ use App\Calculator\Interfaces\ExchangeRatesProviderInterface;
 Container::set(DataProcessorInterface::class, fn() => new CsvParser($argv[1]));
 Container::set(ExchangeRatesProviderInterface::class, fn() => new ExchangeRatesProvider());
 
-$calcFactory = new CalculatorFactory();
-
 $result = [];
 foreach ((new TransactionStorage(Container::get(DataProcessorInterface::class)))->getAll() as $trns) {
     $t = reset($trns);
     $clientType = $t->client->type;
-    $calc = $calcFactory->createCalculator($clientType);
-    $result = array_merge($calc->calcFee($trns), $result);
+    $transactionFeeCalculator = CalculatorFactory::createCalculator($clientType);
+    $result = array_merge($transactionFeeCalculator->calcFee($trns), $result);
 }
 
 usort($result, fn($a, $b) => $a->trn_id - $b->trn_id);

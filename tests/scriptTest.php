@@ -47,8 +47,6 @@ class ScriptTest extends TestCase
                 }
             });
 
-        $calcFactory = new CalculatorFactory();
-
         // Create the necessary objects
         $transactionStorage = new TransactionStorage(Container::get(DataProcessorInterface::class));
 
@@ -57,8 +55,7 @@ class ScriptTest extends TestCase
         foreach ($transactionStorage->getAll() as $trns) {
             $t = reset($trns);
             $clientType = $t->client->type;
-            $transactionFeeCalculator = $calcFactory->createCalculator($clientType);
-
+            $transactionFeeCalculator = CalculatorFactory::createCalculator($clientType);
             $result = array_merge($transactionFeeCalculator->calcFee($trns), $result);
         }
 

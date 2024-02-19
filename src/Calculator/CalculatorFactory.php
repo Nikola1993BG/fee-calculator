@@ -18,7 +18,7 @@ class CalculatorFactory
      * @param string $type The type of calculator to create ('private' or 'business').
      * @return TransactionFeeCalculatorInterface|null The created calculator instance, or null if the type is invalid.
      */
-    public function createCalculator(string $type): ?TransactionFeeCalculatorInterface
+    public static function createCalculator(string $type): ?TransactionFeeCalculatorInterface
     {
         if ($type == 'private') {
             return new TransactionFeePrivateCalculator(Container::get(ExchangeRatesProviderInterface::class));
